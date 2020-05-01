@@ -1,0 +1,49 @@
+<html>
+  <head>
+      <title>Panorama 360° VR</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-physics-system@1.4.0/dist/aframe-physics-system.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+        <a-assets>
+          <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+
+          <!-- Images. -->
+          <img id="pic1" src="/images/49293365267_530d81ba7d_o.jpg">
+          <img id="pic2" src="/images/49322694111_7431186d41_o.jpg">
+          <img id="pic3" src="/images/49405941688_2de566513f_o.jpg">
+          <img id="pic4" src="/images/49445100943_9b9dfbf81b_o.jpg">
+          <img id="pic5" src="/images/49580232287_7eeaba27fe_o.jpg">
+          <img id="pic6" src="/images/49595930273_3cfd0c7e0e_o.jpg">
+          <img id="pic7" src="/images/49596117556_00de91fb37_o.jpg">
+          <img id="pic8" src="/images/49651867037_59c09cee90_o.jpg">
+          <img id="pic9" src="/images/49735088658_78e8f76cc0_o.jpg">
+          <img id="pic10" src="/images/49757866967_8b96e8b1b1_o.jpg">
+
+
+        </a-assets>
+
+        <!-- 360-degree image. -->
+        <a-sky id="image-360" radius="10" src="#pic3"></a-sky>
+
+        <!-- Link template we will build. -->
+        <a-entity class="link"></a-entity>
+
+        <!-- Camera + Cursor. -->
+        <a-camera>
+          <a-cursor
+            id="cursor"
+            animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; easing: easeInCubic; dur: 150; startEvents: click"
+            animation__clickreset="property: scale; to: 0.1 0.1 0.1; dur: 1; startEvents: animationcomplete__click"
+            animation__fusing="property: scale; from: 1 1 1; to: 0.1 0.1 0.1; easing: easeInCubic; dur: 150; startEvents: fusing"></a-cursor>
+        </a-camera>
+      </a-scene>
+
+      <!-- <a-box position="-1 4 -3" rotation="0 45 0" color="#4CC3D9" dynamic-body></a-box>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" static-body></a-plane>
+      <a-sky color="#ECECEC"></a-sky> -->
+
+
+  </body>
+</html>
