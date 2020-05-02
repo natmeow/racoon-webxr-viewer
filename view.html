@@ -3,7 +3,7 @@
   <head>
     <title>Cardboard VR Viewer</title>
 
-    <script src="https://aframe.io/releases/1.0.1/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
 
     <script src="https://unpkg.com/aframe-stereo-component/dist/aframe-stereo-component.min.js"></script>
 
@@ -33,7 +33,7 @@
       console.log('starting with', path)
 
       window.onload = () => {
-        AFRAME.scenes[0].style.display = 'none'
+        // AFRAME.scenes[0].style.display = 'none'
 
         const assets = document.querySelector('a-assets')
         const image360left = document.querySelector('a-sky#image-360-left')
@@ -62,7 +62,7 @@
           showImage(image360left, name, 'left')
           showImage(image360right, name, 'right')
 
-          AFRAME.scenes[0].style.display = ''
+          // AFRAME.scenes[0].style.display = ''
         });
 
         getImageURL(firebase.storage(), path).then(async (url) => {
@@ -85,14 +85,7 @@
   </head>
   <body>
 
-    <img src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
-    <h1>Image loading...</h1>
-
-    <div id="dropzone" style="display: none;">
-      <h2 id="openfile"></h2>
-    </div>
-
-    <a-scene>
+    <a-scene vr-mode-ui="enabled: true">
 
       <a-sky color="#FFF"></a-sky>
       <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light>
@@ -116,7 +109,7 @@
           crossorigin="anonymous"
         ></audio>
 
-        <img id="city" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
+        <!-- <img id="city" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
         <img id="city-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
         <img id="cubes-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
         <img id="sechelt-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
@@ -127,7 +120,7 @@
         <img id="mayak" src="./images/upload.vr.jpg" />
         <img id="pano-left" src="./images/upload_vr_left.jpg" />
         <img id="stereo" src="./images/upload_vr_stereo.jpg" />
-        <img id="pano-right" src="./images/upload_vr_stereo.jpg" />
+        <img id="pano-right" src="./images/upload_vr_stereo.jpg" /> -->
 
 
 
@@ -152,12 +145,12 @@
 
       <!-- 360-degree image. -->
       <a-sky
-        id="image-360-left" radius="10" src="#pano-left"
+        id="image-360-left" radius="10" src="" color="red"
         stereo="eye:left"
       ></a-sky>
 
       <a-sky
-        id="image-360-right" radius="10" src="#pano-right"
+        id="image-360-right" radius="10" src="" color="blue"
         stereo="eye:right"
       ></a-sky>
 
