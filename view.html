@@ -109,20 +109,8 @@
           crossorigin="anonymous"
         ></audio>
 
-        <!-- <img id="city" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
-        <img id="city-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
-        <img id="cubes-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
-        <img id="sechelt-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
-        <img id="cubes" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg">
-        <img id="sechelt" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
-
-        <img id="park" src="./images/IMG_20190206_132956.vr.jpg" />
-        <img id="mayak" src="./images/upload.vr.jpg" />
-        <img id="pano-left" src="./images/upload_vr_left.jpg" />
-        <img id="stereo" src="./images/upload_vr_stereo.jpg" />
-        <img id="pano-right" src="./images/upload_vr_stereo.jpg" /> -->
-
-
+        <img id="pano-left" src="./images/converted_left.jpg" />
+        <img id="pano-right" src="./images/converted_right.jpg" />
 
         <video
           id="Mary" crossorigin="anonymous"
@@ -145,12 +133,12 @@
 
       <!-- 360-degree image. -->
       <a-sky
-        id="image-360-left" radius="10" src="" color="red"
+        id="image-360-left" radius="10" src="#pano-left"
         stereo="eye:left"
       ></a-sky>
 
       <a-sky
-        id="image-360-right" radius="10" src="" color="blue"
+        id="image-360-right" radius="10" src="#pano-right"
         stereo="eye:right"
       ></a-sky>
 
