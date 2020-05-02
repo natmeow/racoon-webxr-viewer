@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cardboard VR Viewer</title>
+
+    <script src="https://aframe.io/releases/1.0.1/aframe.min.js"></script>
+
+    <script src="https://unpkg.com/aframe-stereo-component/dist/aframe-stereo-component.min.js"></script>
+
+    <script type="module">
+      import './all.mjs';
+      import {
+        download, getQueryParam, crop, getImageURL, appendImage, showImage,
+      } from './utils.mjs';
+
+      const showDialog = console.log
+
+      let dialog;
+      let filename;
+
+      const path = getQueryParam(window.location.search, 'url');
+
+
+      window.onload = () => {
+
+        getImageURL(firebase.storage(), path).then(onFileURL)
+
+        // const img = document.querySelector('img#pano')
+        const assets = document.querySelector('a-assets')
+        const image360left = document.querySelector('a-sky#image-360-left')
+        const image360right = document.querySelector('a-sky#image-360-right')
+
+        const converter = new OdsConverter();
+
+        converter.on('error', console.error);
+        converter.on('convert', (canvas, audio) => {
+          console.log('onOdsConverted, %s x %s', canvas.width, canvas.height);
+
+          const name = `converted-${Date.now()}`
+
+          const canvasLeft = crop(canvas, { x: 0, y: 0 }, { x: canvas.width, y: canvas.height / 2 })
+          const canvasRight = crop(canvas, { x: 0, y: canvas.height / 2 + 1 }, { x: canvas.width, y: canvas.height })
+
+          console.log('left canvas, %s x %s', canvasLeft.width, canvasLeft.height);
+          console.log('right canvas, %s x %s', canvasRight.width, canvasRight.height);
+
+          appendImage(assets, canvasLeft.toDataURL(), name, 'left')
+          appendImage(assets, canvasRight.toDataURL(), name, 'right')
+
+          canvasLeft.remove()
+          canvasRight.remove()
+
+          showImage(image360left, name, 'left')
+          showImage(image360right, name, 'right')
+
+          AFRAME.scenes[0].style.display = ''
+        });
+
+        window.converter = converter;
+        console.log('converter', converter);
+
+        const input = document.querySelector('input.file-upload');
+        input.addEventListener('change', onFilePicked);
+
+        AFRAME.scenes[0].style.display = 'none'
+      }
+
+      function onFilePicked(e) {
+        // TODO: Validation; Many files
+        console.log('onFilePicked', e.path[0].files)
+        const file = e.path[0].files[0];
+        onFileDropped(file);
+      };
+
+      function onFileDropped(file) {
+        // Show a new dialog.
+        showDialog('progress');
+
+        console.log('onFileDropped', file.name);
+        filename = file.name;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const arrayBuffer = reader.result;
+          // Kick off the conversion process.
+          converter.convert(arrayBuffer);
+        }
+
+        reader.readAsArrayBuffer(file);
+      }
+
+      async function onFileURL(url) {
+        const arrayBuffer = await fetch(url).then(res => res.blob())
+
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const arrayBuffer = reader.result;
+          // Kick off the conversion process.
+          converter.convert(arrayBuffer);
+        }
+
+        reader.readAsArrayBuffer(arrayBuffer);
+
+        // console.log('buffer', arrayBuffer)
+        // // Kick off the conversion process.
+        // converter.convert(arrayBuffer);
+
+      }
+
+    </script>
+
+  </head>
+  <body>
+
+    <img src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
+    <h1>Drop a Cardboard Camera image anywhere to convert</h1>
+    <h2 id="openfile">or click here to open a file</h2>
+
+    <input type="file" class="file-upload" multiple="true">
+
+    <div id="dropzone"></div>
+
+    <a-scene>
+
+      <a-sky color="#FFF"></a-sky>
+      <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light>
+      <a-light type="point" color="#EEE" intensity="1.0" position="3 3 10"></a-light>
+
+      <!-- 'left' eye entities will pass trough the camera in non-VR mode -->
+
+      <a-camera position="0 0 10" cursor-color="black" stereocam="eye:right;"></a-camera>
+
+      <!-- in VR mode, the first box is displayed only in the left eye, the second one in the right eye -->
+
+      <!-- <a-entity geometry="primitive: box" material="color: #C03546" stereo="eye:left"></a-entity>
+      <a-entity geometry="primitive: box" material="color: #3546C0" position="0 5 0" stereo="eye: right"></a-entity> -->
+
+
+
+      <a-assets>
+        <audio
+          id="click-sound"
+          src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"
+          crossorigin="anonymous"
+        ></audio>
+
+        <img id="city" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
+        <img id="city-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
+        <img id="cubes-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
+        <img id="sechelt-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
+        <img id="cubes" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg">
+        <img id="sechelt" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+
+        <img id="park" src="./images/IMG_20190206_132956.vr.jpg" />
+        <img id="mayak" src="./images/upload.vr.jpg" />
+        <img id="pano-left" src="./images/upload_vr_left.jpg" />
+        <img id="stereo" src="./images/upload_vr_stereo.jpg" />
+        <img id="pano-right" src="./images/upload_vr_stereo.jpg" />
+
+
+
+        <video
+          id="Mary" crossorigin="anonymous"
+          src="https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"
+          loop
+        ></video>
+
+      </a-assets>
+
+      <!-- Camera Cursor -->
+      <a-entity id="camera" camera look-controls stereocam="eye: left">
+        <a-cursor
+          id="cursor"
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+          animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+          event-set__mouseenter="_event: mouseenter; color: springgreen"
+          event-set__mouseleave="_event: mouseleave; color: black"
+          raycaster="objects: .link"></a-cursor>
+      </a-entity>
+
+      <!-- 360-degree image. -->
+      <a-sky
+        id="image-360-left" radius="10" src="#pano-left"
+        stereo="eye:left"
+      ></a-sky>
+
+      <a-sky
+        id="image-360-right" radius="10" src="#pano-right"
+        stereo="eye:right"
+      ></a-sky>
+
+
+
+
+      <!--360 stereo LR-->
+      <!-- <a-entity immersive-video="type: 360_stereo; source:https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"></a-entity> -->
+
+
+      <!-- <a-entity geometry="primitive: box" material="color: #C03546" stereo="eye:left"></a-entity>
+      <a-entity geometry="primitive: box" material="color: #3546C0" position="0 5 0" stereo="eye: right"></a-entity> -->
+
+      <!-- <input type="file" class="file-upload" multiple="true"> -->
+
+      <!-- Out of the box environment! -->
+      <!-- <a-entity environment="preset: forest; dressingAmount: 500"></a-entity> -->
+    </a-scene>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyBxfO4SL7s2gRP8rgxlzqmZZc3_OiPqVbk",
+        authDomain: "racoonvrjpgviewer.firebaseapp.com",
+        databaseURL: "https://racoonvrjpgviewer.firebaseio.com",
+        projectId: "racoonvrjpgviewer",
+        storageBucket: "racoonvrjpgviewer.appspot.com",
+        messagingSenderId: "244121138338",
+        appId: "1:244121138338:web:066024bfd78ac65e4ad3fb"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+  </body>
+</html>
