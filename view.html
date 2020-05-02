@@ -19,8 +19,9 @@
       let dialog;
       let filename;
 
-      const path = getQueryParam(window.location.search, 'url');
+      const path = getQueryParam(window.location.search, 'path');
 
+      console.log('loading image from', path)
 
       window.onload = () => {
 
@@ -115,10 +116,7 @@
   <body>
 
     <img src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
-    <h1>Drop a Cardboard Camera image anywhere to convert</h1>
-    <h2 id="openfile">or click here to open a file</h2>
-
-    <input type="file" class="file-upload" multiple="true">
+    <h1>Image loading...</h1>
 
     <div id="dropzone"></div>
 
@@ -130,7 +128,7 @@
 
       <!-- 'left' eye entities will pass trough the camera in non-VR mode -->
 
-      <a-camera position="0 0 10" cursor-color="black" stereocam="eye:right;"></a-camera>
+      <a-camera position="0 0 0" cursor-color="black" stereocam="eye:right;"></a-camera>
 
       <!-- in VR mode, the first box is displayed only in the left eye, the second one in the right eye -->
 
