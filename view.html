@@ -63,6 +63,10 @@
           audioElem.autoplay = true;
           audioElem.play();
 
+          document.onclick = () => {
+            audioElem.play();
+          }
+
           canvasLeft.remove()
           canvasRight.remove()
 
