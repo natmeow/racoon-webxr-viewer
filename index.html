@@ -1,82 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Egor Gallery VR</title>
-    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Cardboard VR Viewer</title>
 
-    <script src="https://aframe.io/releases/1.0.1/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
 
-    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-stereo-component/dist/aframe-stereo-component.min.js"></script>
 
-    <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-layout-component@4.x.x/dist/aframe-layout-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-template-component@3.x.x/dist/aframe-template-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.js"></script>
+    <script type="module">
+      import './all.mjs';
+      import {
+        download, getQueryParam, crop, getImageURL, appendMedia, showImage,
+        fetchGallery,
+      } from './utils.mjs';
+
+      const showDialog = console.log
+
+      let dialog;
+      let filename;
+      let audioElem;
+
+      const path = getQueryParam(window.location.search, 'path');
+      const gallery = getQueryParam(window.location.search, 'gallery');
+      // const url = getQueryParam(window.location.search, 'url');
+
+      let images = [path];
+
+      if (gallery) {
+        fetchGallery(gallery)
+          .then(list => images = list)
+      }
+
+      console.log('loading images from', images)
+      console.log('starting with', path)
+
+      window.onload = () => {
+        // AFRAME.scenes[0].style.display = 'none'
+
+        const assets = document.querySelector('a-assets')
+        const image360left = document.querySelector('a-sky#image-360-left')
+        const image360right = document.querySelector('a-sky#image-360-right')
+
+        const converter = new OdsConverter();
+
+        converter.on('error', console.error);
+        converter.on('convert', (canvas, audio) => {
+          console.log('ods converted, %s x %s', canvas.width, canvas.height);
+
+          const name = `converted-${Date.now()}`
+
+          const canvasLeft = crop(canvas, { x: 0, y: 0 }, { x: canvas.width, y: canvas.height / 2 })
+          const canvasRight = crop(canvas, { x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height })
+
+          console.log('left canvas, %s x %s', canvasLeft.width, canvasLeft.height);
+          console.log('right canvas, %s x %s', canvasRight.width, canvasRight.height);
+
+          appendMedia(assets, 'img', name, 'left', canvasLeft.toDataURL())
+          appendMedia(assets, 'img', name, 'right', canvasRight.toDataURL())
+
+          audioElem = appendMedia(assets, 'audio', name, 'audio', audio)
+          audioElem.loop = true;
+          audioElem.autoplay = true;
+          audioElem.play();
+
+          document.onclick = () => {
+            audioElem.play();
+          }
+
+          canvasLeft.remove()
+          canvasRight.remove()
+
+          showImage(image360left, name, 'left')
+          showImage(image360right, name, 'right')
+
+        });
+
+        getImageURL(firebase.storage(), path).then(async (url) => {
+          const arrayBuffer = await fetch(url).then(res => res.blob())
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const arrayBuffer = reader.result;
+            // Kick off the conversion process.
+            converter.convert(arrayBuffer);
+          }
+
+          reader.readAsArrayBuffer(arrayBuffer);
+        })
+
+      }
+
+    </script>
 
   </head>
   <body>
 
-    <a-scene background="color: #FAFAFA">
+    <a-scene>
+
+      <!-- <a-sky color="#FFF"></a-sky> -->
+      <!-- <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light> -->
+
+      <a-camera position="0 0 0" cursor-color="black" stereocam="eye:right;"></a-camera>
 
       <a-assets>
-        <audio
-          id="click-sound"
-          src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"
-          crossorigin="anonymous"
-        ></audio>
 
-        <img id="city" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg">
-        <img id="city-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-city.jpg">
-        <img id="cubes-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg">
-        <img id="sechelt-thumb" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-sechelt.jpg">
-        <img id="cubes" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg">
-        <img id="sechelt" crossorigin="anonymous" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
+        <img id="pano-left" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
+        <img id="pano-right" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
 
+        <!-- <video
+          id="Mary" crossorigin="anonymous"
+          src="https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"
+          loop
+        ></video> -->
 
-        <img id="park" src="./images/IMG_20190206_132956.vr.jpg" />
-        <img id="mayak" src="./images/upload.vr.jpg" />
-        <img id="conv" src="./images/upload.vr-converted.jpg" />
-
-        <!-- Image link template to be reused. -->
-        <script id="link" type="text/html">
-          <a-entity class="link"
-            geometry="primitive: plane; height: 1; width: 1"
-            material="shader: flat; src: ${thumb}"
-            event-set__mouseenter="scale: 1.2 1.2 1"
-            event-set__mouseleave="scale: 1 1 1"
-            event-set__click="_target: #image-360; _delay: 300; material.src: ${src}"
-            proxy-event="event: click; to: #image-360; as: fade"
-            sound="on: click; src: #click-sound"
-          ></a-entity>
-        </script>
       </a-assets>
 
-      <!-- 360-degree image. -->
-      <a-sky
-        id="image-360" radius="10" src="#conv"
-        animation__fade="property: components.material.material.color; type: color; from: #FFF; to: #000; dur: 300; startEvents: fade"
-        animation__fadeback="property: components.material.material.color; type: color; from: #000; to: #FFF; dur: 300; startEvents: animationcomplete__fade"
-      ></a-sky>
-
-      <!-- Image links. -->
-      <a-entity id="links" layout="type: line; margin: 1.5" position="-4 -1 -4">
-        <a-entity template="src: #link" data-src="#mayak" data-thumb="#mayak"></a-entity>
-        <a-entity template="src: #link" data-src="#park" data-thumb="#park"></a-entity>
-        <a-entity template="src: #link" data-src="#conv" data-thumb="#conv"></a-entity>
-
-        <!-- <a-entity
-          class="link"
-          proxy-event="event: click; to: #image-360; as: fade"
-        ></a-entity> -->
-
-      </a-entity>
-
-      <!-- Pass image sources to the template. -->
-
       <!-- Camera Cursor -->
-      <a-entity id="camera" camera look-controls>
+      <!-- <a-entity id="camera" camera look-controls stereocam="eye: left">
         <a-cursor
           id="cursor"
           animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
@@ -84,11 +124,39 @@
           event-set__mouseenter="_event: mouseenter; color: springgreen"
           event-set__mouseleave="_event: mouseleave; color: black"
           raycaster="objects: .link"></a-cursor>
-      </a-entity>
+      </a-entity> -->
 
-      <!-- Out of the box environment! -->
-      <!-- <a-entity environment="preset: forest; dressingAmount: 500"></a-entity> -->
+      <!-- 360-degree image for both eyes -->
+      <a-sky
+        id="image-360-left" radius="10" src="#pano-left"
+        stereo="eye:left"
+      ></a-sky>
+
+      <a-sky
+        id="image-360-right" radius="10" src="#pano-right"
+        stereo="eye:right"
+      ></a-sky>
+
     </a-scene>
 
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyBxfO4SL7s2gRP8rgxlzqmZZc3_OiPqVbk",
+        authDomain: "racoonvrjpgviewer.firebaseapp.com",
+        databaseURL: "https://racoonvrjpgviewer.firebaseio.com",
+        projectId: "racoonvrjpgviewer",
+        storageBucket: "racoonvrjpgviewer.appspot.com",
+        messagingSenderId: "244121138338",
+        appId: "1:244121138338:web:066024bfd78ac65e4ad3fb"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
   </body>
 </html>
