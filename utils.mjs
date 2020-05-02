@@ -3,6 +3,10 @@ export const getImageURL = (storage, path) => {
   return storage.ref(path).getDownloadURL()
 }
 
+export const fetchGallery = (database, uid) => {
+  return database.ref('/gallery/'+uid).once('value').then(s => s.val())
+}
+
 export const getQueryParam = (queryString, param) => {
   const { value } = queryString
         .slice(1).split('&')
@@ -11,7 +15,7 @@ export const getQueryParam = (queryString, param) => {
 
           return { key, value }
         })
-        .find(({ key }) => key === param)
+        .find(({ key }) => key === param) || {}
 
   return value
 }

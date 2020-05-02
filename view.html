@@ -12,22 +12,30 @@
       import './all.mjs';
       import {
         download, getQueryParam, crop, getImageURL, appendImage, showImage,
+        fetchGallery,
       } from './utils.mjs';
 
+      AFRAME.scenes[0].style.display = 'none'
       const showDialog = console.log
 
       let dialog;
       let filename;
 
       const path = getQueryParam(window.location.search, 'path');
+      const gallery = getQueryParam(window.location.search, 'gallery');
 
-      console.log('loading image from', path)
+      let images = [path];
+
+      if (gallery) {
+        fetchGallery(gallery)
+          .then(list => images = list)
+      }
+
+      console.log('loading images from', images)
+      console.log('starting with', path)
 
       window.onload = () => {
 
-        getImageURL(firebase.storage(), path).then(onFileURL)
-
-        // const img = document.querySelector('img#pano')
         const assets = document.querySelector('a-assets')
         const image360left = document.querySelector('a-sky#image-360-left')
         const image360right = document.querySelector('a-sky#image-360-right')
@@ -36,12 +44,12 @@
 
         converter.on('error', console.error);
         converter.on('convert', (canvas, audio) => {
-          console.log('onOdsConverted, %s x %s', canvas.width, canvas.height);
+          console.log('ods converted, %s x %s', canvas.width, canvas.height);
 
           const name = `converted-${Date.now()}`
 
           const canvasLeft = crop(canvas, { x: 0, y: 0 }, { x: canvas.width, y: canvas.height / 2 })
-          const canvasRight = crop(canvas, { x: 0, y: canvas.height / 2 + 1 }, { x: canvas.width, y: canvas.height })
+          const canvasRight = crop(canvas, { x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height })
 
           console.log('left canvas, %s x %s', canvasLeft.width, canvasLeft.height);
           console.log('right canvas, %s x %s', canvasRight.width, canvasRight.height);
@@ -58,56 +66,20 @@
           AFRAME.scenes[0].style.display = ''
         });
 
-        window.converter = converter;
-        console.log('converter', converter);
+        getImageURL(firebase.storage(), path).then(async (url) => {
+          const arrayBuffer = await fetch(url).then(res => res.blob())
 
-        const input = document.querySelector('input.file-upload');
-        input.addEventListener('change', onFilePicked);
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const arrayBuffer = reader.result;
+            // Kick off the conversion process.
+            converter.convert(arrayBuffer);
+          }
+
+          reader.readAsArrayBuffer(arrayBuffer);
+        })
 
         AFRAME.scenes[0].style.display = 'none'
-      }
-
-      function onFilePicked(e) {
-        // TODO: Validation; Many files
-        console.log('onFilePicked', e.path[0].files)
-        const file = e.path[0].files[0];
-        onFileDropped(file);
-      };
-
-      function onFileDropped(file) {
-        // Show a new dialog.
-        showDialog('progress');
-
-        console.log('onFileDropped', file.name);
-        filename = file.name;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const arrayBuffer = reader.result;
-          // Kick off the conversion process.
-          converter.convert(arrayBuffer);
-        }
-
-        reader.readAsArrayBuffer(file);
-      }
-
-      async function onFileURL(url) {
-        const arrayBuffer = await fetch(url).then(res => res.blob())
-
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const arrayBuffer = reader.result;
-          // Kick off the conversion process.
-          converter.convert(arrayBuffer);
-        }
-
-        reader.readAsArrayBuffer(arrayBuffer);
-
-        // console.log('buffer', arrayBuffer)
-        // // Kick off the conversion process.
-        // converter.convert(arrayBuffer);
-
       }
 
     </script>
@@ -118,7 +90,9 @@
     <img src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
     <h1>Image loading...</h1>
 
-    <div id="dropzone"></div>
+    <div id="dropzone" style="display: none;">
+      <h2 id="openfile"></h2>
+    </div>
 
     <a-scene>
 
@@ -209,6 +183,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
 
     <script>
       // Your web app's Firebase configuration

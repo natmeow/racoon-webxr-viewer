@@ -1727,127 +1727,127 @@ module.exports = Emitter;
 
 },{}],5:[function(require,module,exports){
 var OdsConverter = require('./ods-converter');
-var Dropzone = require('./dropzone');
+// var Dropzone = require('./dropzone');
 
 var TARGET_SIZE = 4096;
 
-var dz = document.querySelector('#dropzone');
-var dropzone = new Dropzone(dz);
-dropzone.on('file', onFileDropped);
-dropzone.on('error', onDropError);
-
-const converter = new OdsConverter();
-converter.on('convert', onOdsConverted);
-converter.on('error', onOdsConversionError);
-
-// Make all dialogs disappear if clicked out of.
-dz.addEventListener('click', function(e) {
-  if (e.target.nodeName.toLowerCase() == 'dialog') {
-    if (dialog.open) {
-      dialog.close();
-    }
-  }
-});
+// var dz = document.querySelector('#dropzone');
+// var dropzone = new Dropzone(dz);
+// dropzone.on('file', onFileDropped);
+// dropzone.on('error', onDropError);
+//
+// // const converter = new OdsConverter();
+// // converter.on('convert', onOdsConverted);
+// // converter.on('error', onOdsConversionError);
+//
+// // Make all dialogs disappear if clicked out of.
+// dz.addEventListener('click', function(e) {
+//   if (e.target.nodeName.toLowerCase() == 'dialog') {
+//     if (dialog.open) {
+//       dialog.close();
+//     }
+//   }
+// });
 
 // Hook up the open file link.
-document.querySelector('#openfile').addEventListener('click', onOpenClicked);
+// document.querySelector('#openfile').addEventListener('click', onOpenClicked);
+//
+// var filename;
+//
+// function onFileDropped(file) {
+//   // Show a new dialog.
+//   showDialog('progress');
+//
+//   console.log('onFileDropped', file.name);
+//   filename = file.name;
+//
+//   var reader = new FileReader();
+//   reader.onload = function(e) {
+//     var arrayBuffer = reader.result;
+//     // Kick off the conversion process.
+//     converter.convert(arrayBuffer);
+//   }
+//
+//   reader.readAsArrayBuffer(file);
+// }
+//
+// function onOdsConverted(canvas, audio) {
+//   console.log('onOdsConverted, %s x %s', canvas.width, canvas.height);
+//
+//   canvas.toBlob(function(blob) {
+//     var dlImage = document.querySelector('#dl-image');
+//     dlImage.disabled = false;
+//     dlImage.addEventListener('click', onImageClick);
+//     function onImageClick() {
+//       createLink(URL.createObjectURL(blob), getConvertedFilename(filename)).click();
+//       dlImage.removeEventListener('click', onImageClick);
+//     }
+//
+//     var dlAudio = document.querySelector('#dl-audio');
+//     dlAudio.disabled = false;
+//     dlAudio.addEventListener('click', onAudioClick);
+//     function onAudioClick() {
+//       createLink(audio, getConvertedFilename(filename, '.mp4')).click();
+//       dlAudio.removeEventListener('click', onAudioClick);
+//     }
+//
+//     showDialog('success');
+//   }, 'image/jpeg');
+//
+// }
 
-var filename;
+// function createLink(url, filename) {
+//   var link = document.createElement('a');
+//   link.download = filename;
+//   link.href = url;
+//   return link;
+// }
 
-function onFileDropped(file) {
-  // Show a new dialog.
-  showDialog('progress');
+// function onOdsConversionError(error) {
+//   console.log('onOdsConversionError', error);
+//   showDialog('fail')
+//   setErrorMessage('Conversion error: ' + error);
+// }
+//
+// function onDropError(error) {
+//   console.log('onDropError', error);
+//   showDialog('fail')
+//   setErrorMessage('Drop error: ' + error);
+// }
 
-  console.log('onFileDropped', file.name);
-  filename = file.name;
+// function getConvertedFilename(filename, opt_ext) {
+//   var extIndex = filename.lastIndexOf('.');
+//   var basename = filename.substring(0, extIndex);
+//   var ext = opt_ext || filename.substring(extIndex);
+//   return basename + '-converted' + ext;
+// }
+//
+// function showDialog(id) {
+//   // Close previously open dialog (if it exists).
+//   if (window.dialog && dialog.open) {
+//     dialog.close();
+//   }
+//   dialog = document.querySelector('#' + id);
+//   dialog.showModal();
+// }
 
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var arrayBuffer = reader.result;
-    // Kick off the conversion process.
-    converter.convert(arrayBuffer);
-  }
+// function setErrorMessage(errorMessage) {
+//   var error = document.querySelector('#error');
+//   error.innerHTML = errorMessage;
+// }
 
-  reader.readAsArrayBuffer(file);
-}
+// function onOpenClicked(e) {
+//   var input = document.createElement('input');
+//   input.type = 'file';
+//   input.click();
+//   input.addEventListener('change', onFilePicked);
+// }
 
-function onOdsConverted(canvas, audio) {
-  console.log('onOdsConverted, %s x %s', canvas.width, canvas.height);
-
-  canvas.toBlob(function(blob) {
-    var dlImage = document.querySelector('#dl-image');
-    dlImage.disabled = false;
-    dlImage.addEventListener('click', onImageClick);
-    function onImageClick() {
-      createLink(URL.createObjectURL(blob), getConvertedFilename(filename)).click();
-      dlImage.removeEventListener('click', onImageClick);
-    }
-
-    var dlAudio = document.querySelector('#dl-audio');
-    dlAudio.disabled = false;
-    dlAudio.addEventListener('click', onAudioClick);
-    function onAudioClick() {
-      createLink(audio, getConvertedFilename(filename, '.mp4')).click();
-      dlAudio.removeEventListener('click', onAudioClick);
-    }
-
-    showDialog('success');
-  }, 'image/jpeg');
-
-}
-
-function createLink(url, filename) {
-  var link = document.createElement('a');
-  link.download = filename;
-  link.href = url;
-  return link;
-}
-
-function onOdsConversionError(error) {
-  console.log('onOdsConversionError', error);
-  showDialog('fail')
-  setErrorMessage('Conversion error: ' + error);
-}
-
-function onDropError(error) {
-  console.log('onDropError', error);
-  showDialog('fail')
-  setErrorMessage('Drop error: ' + error);
-}
-
-function getConvertedFilename(filename, opt_ext) {
-  var extIndex = filename.lastIndexOf('.');
-  var basename = filename.substring(0, extIndex);
-  var ext = opt_ext || filename.substring(extIndex);
-  return basename + '-converted' + ext;
-}
-
-function showDialog(id) {
-  // Close previously open dialog (if it exists).
-  if (window.dialog && dialog.open) {
-    dialog.close();
-  }
-  dialog = document.querySelector('#' + id);
-  dialog.showModal();
-}
-
-function setErrorMessage(errorMessage) {
-  var error = document.querySelector('#error');
-  error.innerHTML = errorMessage;
-}
-
-function onOpenClicked(e) {
-  var input = document.createElement('input');
-  input.type = 'file';
-  input.click();
-  input.addEventListener('change', onFilePicked);
-}
-
-function onFilePicked(e) {
-  // TODO: Validation.
-  var file = e.path[0].files[0];
-  onFileDropped(file);
-};
+// function onFilePicked(e) {
+//   // TODO: Validation.
+//   var file = e.path[0].files[0];
+//   onFileDropped(file);
+// };
 
 },{"./dropzone":3,"./ods-converter":6}],6:[function(require,module,exports){
 var EventEmitter3 = require('eventemitter3');
