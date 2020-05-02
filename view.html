@@ -10,7 +10,7 @@
     <script type="module">
       import './all.mjs';
       import {
-        download, getQueryParam, crop, getImageURL, appendImage, showImage,
+        download, getQueryParam, crop, getImageURL, appendMedia, showImage,
         fetchGallery,
       } from './utils.mjs';
 
@@ -18,9 +18,11 @@
 
       let dialog;
       let filename;
+      let audioElem;
 
       const path = getQueryParam(window.location.search, 'path');
       const gallery = getQueryParam(window.location.search, 'gallery');
+      // const url = getQueryParam(window.location.search, 'url');
 
       let images = [path];
 
@@ -53,8 +55,13 @@
           console.log('left canvas, %s x %s', canvasLeft.width, canvasLeft.height);
           console.log('right canvas, %s x %s', canvasRight.width, canvasRight.height);
 
-          appendImage(assets, canvasLeft.toDataURL(), name, 'left')
-          appendImage(assets, canvasRight.toDataURL(), name, 'right')
+          appendMedia(assets, 'img', name, 'left', canvasLeft.toDataURL())
+          appendMedia(assets, 'img', name, 'right', canvasRight.toDataURL())
+
+          audioElem = appendMedia(assets, 'audio', name, 'audio', audio)
+          audioElem.loop = true;
+          audioElem.autoplay = true;
+          audioElem.play();
 
           canvasLeft.remove()
           canvasRight.remove()
@@ -62,7 +69,6 @@
           showImage(image360left, name, 'left')
           showImage(image360right, name, 'right')
 
-          // AFRAME.scenes[0].style.display = ''
         });
 
         getImageURL(firebase.storage(), path).then(async (url) => {
@@ -85,43 +91,28 @@
   </head>
   <body>
 
-    <a-scene vr-mode-ui="enabled: true">
+    <a-scene>
 
-      <a-sky color="#FFF"></a-sky>
-      <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light>
-      <a-light type="point" color="#EEE" intensity="1.0" position="3 3 10"></a-light>
-
-      <!-- 'left' eye entities will pass trough the camera in non-VR mode -->
+      <!-- <a-sky color="#FFF"></a-sky> -->
+      <!-- <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light> -->
 
       <a-camera position="0 0 0" cursor-color="black" stereocam="eye:right;"></a-camera>
 
-      <!-- in VR mode, the first box is displayed only in the left eye, the second one in the right eye -->
-
-      <!-- <a-entity geometry="primitive: box" material="color: #C03546" stereo="eye:left"></a-entity>
-      <a-entity geometry="primitive: box" material="color: #3546C0" position="0 5 0" stereo="eye: right"></a-entity> -->
-
-
-
       <a-assets>
-        <audio
-          id="click-sound"
-          src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"
-          crossorigin="anonymous"
-        ></audio>
 
         <img id="pano-left" src="./images/converted_left.jpg" />
         <img id="pano-right" src="./images/converted_right.jpg" />
 
-        <video
+        <!-- <video
           id="Mary" crossorigin="anonymous"
           src="https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"
           loop
-        ></video>
+        ></video> -->
 
       </a-assets>
 
       <!-- Camera Cursor -->
-      <a-entity id="camera" camera look-controls stereocam="eye: left">
+      <!-- <a-entity id="camera" camera look-controls stereocam="eye: left">
         <a-cursor
           id="cursor"
           animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
@@ -129,9 +120,9 @@
           event-set__mouseenter="_event: mouseenter; color: springgreen"
           event-set__mouseleave="_event: mouseleave; color: black"
           raycaster="objects: .link"></a-cursor>
-      </a-entity>
+      </a-entity> -->
 
-      <!-- 360-degree image. -->
+      <!-- 360-degree image for both eyes -->
       <a-sky
         id="image-360-left" radius="10" src="#pano-left"
         stereo="eye:left"
@@ -142,25 +133,10 @@
         stereo="eye:right"
       ></a-sky>
 
-
-
-
-      <!--360 stereo LR-->
-      <!-- <a-entity immersive-video="type: 360_stereo; source:https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"></a-entity> -->
-
-
-      <!-- <a-entity geometry="primitive: box" material="color: #C03546" stereo="eye:left"></a-entity>
-      <a-entity geometry="primitive: box" material="color: #3546C0" position="0 5 0" stereo="eye: right"></a-entity> -->
-
-      <!-- <input type="file" class="file-upload" multiple="true"> -->
-
-      <!-- Out of the box environment! -->
-      <!-- <a-entity environment="preset: forest; dressingAmount: 500"></a-entity> -->
     </a-scene>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
 

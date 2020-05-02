@@ -62,16 +62,16 @@ export const crop = (canvas, a, b) => {
   return newCan;
 }
 
-export const appendImage = (assets, image, name, type) => {
-  const id = `${name}-${type}`
-  const img = document.createElement('img')
+export const appendMedia = (assets, element = 'img', name, side, buffer) => {
+  const id = `${name}-${side}`
+  const elem = document.createElement(element)
 
-  img.src = image
-  img.id = id
+  elem.src = buffer
+  elem.id = id
 
-  assets.appendChild(img)
+  assets.appendChild(elem)
 
-  return id
+  return elem
 }
 
 export const showImage = (sky, name, type) => {
