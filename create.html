@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cardboard Gallery Upload</title>
+
+    <script type="module">
+      import './all.mjs';
+
+      const showDialog = console.log
+
+      window.onload = () => {
+
+        const input = document.querySelector('input.file-upload');
+
+        input.addEventListener('change', onFilePicked);
+
+      }
+
+      async function onFilePicked(e) {
+        console.log('onFilePicked', e.path[0].files)
+
+        for (let i = 0; i < e.path[0].files.length; i++) {
+          const file = e.path[0].files[i];
+
+          uploadFile(file)
+        }
+
+      };
+
+      async function uploadFile(file) {
+
+        // const file = e.path[0].files[0];
+
+        console.log('file', file.name);
+
+        const rootRef = storage.ref();
+        const filename = file.name;
+        const galleryName = 'public';
+
+        const randomName = Math.random().toString(36).substring(2,8);
+
+        const imageRef = rootRef.child(`${galleryName}/${randomName}.vr.jpg`);
+
+        const snapshot = await imageRef.put(file);
+
+        console.log('snapshot', snapshot);
+        const { fullPath } = snapshot.metadata;
+
+        const shareUrl = `https://racoon-webxr-viewer.now.sh/view.html?path=${fullPath}`
+        // prompt('Share this link', shareUrl)
+
+        const link = document.createElement('a')
+        link.href = shareUrl
+        link.innerText = shareUrl
+        link.style.display = 'block'
+        document.querySelector('.links').appendChild(link)
+
+      }
+
+    </script>
+
+  </head>
+  <body>
+
+    <img width="200" src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
+    <h1>Drop a Cardboard Camera image to upload</h1>
+    <p>You can upload many at once, but they will be shared only one by one.</p>
+    <p>Upload will begin automatically when selected</p>
+    <p>By uploading, you'll get a unique link, and the files will be visible to everyone by this link</p>
+    <b>Please only upload .vr.jpg files!</b>
+    <!-- <h2 id="openfile">or click here to open a file</h2> -->
+
+    <input type="file" class="file-upload" multiple="true">
+
+    <p class="links">
+
+    </p>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-database.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyBxfO4SL7s2gRP8rgxlzqmZZc3_OiPqVbk",
+        authDomain: "racoonvrjpgviewer.firebaseapp.com",
+        databaseURL: "https://racoonvrjpgviewer.firebaseio.com",
+        projectId: "racoonvrjpgviewer",
+        storageBucket: "racoonvrjpgviewer.appspot.com",
+        messagingSenderId: "244121138338",
+        appId: "1:244121138338:web:066024bfd78ac65e4ad3fb"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Get a reference to the storage service, which is used to create references in your storage bucket
+      window.storage = firebase.storage();
+    </script>
+  </body>
+</html>
