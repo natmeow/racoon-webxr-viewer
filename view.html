@@ -40,6 +40,7 @@
         const assets = document.querySelector('a-assets')
         const image360left = document.querySelector('a-sky#image-360-left')
         const image360right = document.querySelector('a-sky#image-360-right')
+        const preview = document.querySelector('a-sky#preview')
 
         const converter = new OdsConverter();
 
@@ -76,7 +77,15 @@
         });
 
         getImageURL(firebase.storage(), path).then(async (url) => {
+
           const arrayBuffer = await fetch(url).then(res => res.blob())
+
+          const name = `unconverted-${Date.now()}`
+          appendMedia(assets, 'img', name, 'both', URL.createObjectURL(arrayBuffer))
+          showImage(preview, name, 'both')
+          preview.setAttribute('color', '')
+          image360right.setAttribute('visible', false)
+          image360left.setAttribute('visible', false)
 
           const reader = new FileReader();
           reader.onload = function(e) {
@@ -106,6 +115,7 @@
 
         <img id="pano-left" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
         <img id="pano-right" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
+        <img id="sky" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
 
         <!-- <video
           id="Mary" crossorigin="anonymous"
@@ -115,25 +125,26 @@
 
       </a-assets>
 
-      <!-- Camera Cursor -->
-      <!-- <a-entity id="camera" camera look-controls stereocam="eye: left">
-        <a-cursor
-          id="cursor"
-          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-          animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
-          event-set__mouseenter="_event: mouseenter; color: springgreen"
-          event-set__mouseleave="_event: mouseleave; color: black"
-          raycaster="objects: .link"></a-cursor>
-      </a-entity> -->
+      <a-sky
+        id="preview" radius="20" color="grey"
+        theta-start="60" theta-length="60"
+      ></a-sky>
+
+      <a-text
+        value="3D image loading..."
+        position="0 0 -15"
+      ></a-text>
 
       <!-- 360-degree image for both eyes -->
       <a-sky
         id="image-360-left" radius="10" src="#pano-left"
+        visible="false"
         stereo="eye:left"
       ></a-sky>
 
       <a-sky
         id="image-360-right" radius="10" src="#pano-right"
+        visible="false"
         stereo="eye:right"
       ></a-sky>
 

@@ -76,6 +76,7 @@ export const appendMedia = (assets, element = 'img', name, side, buffer) => {
 
 export const showImage = (sky, name, type) => {
   sky.setAttribute('src', `#${name}-${type}`)
+  sky.setAttribute('visible', true)
 // image360right.setAttribute('src', `#${name}-right`)
 // image360left.src = `#${name}-left`
 // image360right.src = `#${name}-right`
