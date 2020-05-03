@@ -3,141 +3,20 @@
   <head>
     <title>Cardboard VR Viewer</title>
 
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-
-    <script src="https://unpkg.com/aframe-stereo-component/dist/aframe-stereo-component.min.js"></script>
-
-    <script type="module">
-      import './all.mjs';
-      import {
-        download, getQueryParam, crop, getImageURL, appendMedia, showImage,
-        fetchGallery,
-      } from './utils.mjs';
-
-      const showDialog = console.log
-
-      let dialog;
-      let filename;
-      let audioElem;
-
-      const path = getQueryParam(window.location.search, 'path');
-      const gallery = getQueryParam(window.location.search, 'gallery');
-      // const url = getQueryParam(window.location.search, 'url');
-
-      let images = [path];
-
-      if (gallery) {
-        fetchGallery(gallery)
-          .then(list => images = list)
-      }
-
-      console.log('loading images from', images)
-      console.log('starting with', path)
-
-      window.onload = () => {
-        // AFRAME.scenes[0].style.display = 'none'
-
-        const assets = document.querySelector('a-assets')
-        const image360left = document.querySelector('a-sky#image-360-left')
-        const image360right = document.querySelector('a-sky#image-360-right')
-
-        const converter = new OdsConverter();
-
-        converter.on('error', console.error);
-        converter.on('convert', (canvas, audio) => {
-          console.log('ods converted, %s x %s', canvas.width, canvas.height);
-
-          const name = `converted-${Date.now()}`
-
-          const canvasLeft = crop(canvas, { x: 0, y: 0 }, { x: canvas.width, y: canvas.height / 2 })
-          const canvasRight = crop(canvas, { x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height })
-
-          console.log('left canvas, %s x %s', canvasLeft.width, canvasLeft.height);
-          console.log('right canvas, %s x %s', canvasRight.width, canvasRight.height);
-
-          appendMedia(assets, 'img', name, 'left', canvasLeft.toDataURL())
-          appendMedia(assets, 'img', name, 'right', canvasRight.toDataURL())
-
-          audioElem = appendMedia(assets, 'audio', name, 'audio', audio)
-          audioElem.loop = true;
-          audioElem.autoplay = true;
-          audioElem.play();
-
-          document.onclick = () => {
-            audioElem.play();
-          }
-
-          canvasLeft.remove()
-          canvasRight.remove()
-
-          showImage(image360left, name, 'left')
-          showImage(image360right, name, 'right')
-
-        });
-
-        getImageURL(firebase.storage(), path).then(async (url) => {
-          const arrayBuffer = await fetch(url).then(res => res.blob())
-
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const arrayBuffer = reader.result;
-            // Kick off the conversion process.
-            converter.convert(arrayBuffer);
-          }
-
-          reader.readAsArrayBuffer(arrayBuffer);
-        })
-
-      }
-
-    </script>
-
   </head>
   <body>
+    <h1>Hey! That's an app to convert and view Cardboard Camera .vr.jpg images.</h1>
 
-    <a-scene>
+    <p>To start, upload an image here:</p>
 
-      <!-- <a-sky color="#FFF"></a-sky> -->
-      <!-- <a-light color="#333" position="0 5 0" type="ambient" intensity="0.2"></a-light> -->
+    <p> <a href="/create.html">Upload</a></p>
 
-      <a-camera position="0 0 0" cursor-color="black" stereocam="eye:right;"></a-camera>
+    <p>Or view an example image:</p>
 
-      <a-assets>
+    <p> <a href="/view.html?c=33hl09">Upload</a></p>
 
-        <img id="pano-left" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
-        <img id="pano-right" crossorigin="anonymous" src="https://aframe.io/a-painter/assets/images/sky.jpg" />
 
-        <!-- <video
-          id="Mary" crossorigin="anonymous"
-          src="https://cdn.dataverse.xyz/examples/allvizs/immersive/MaryOculus.mp4"
-          loop
-        ></video> -->
 
-      </a-assets>
-
-      <!-- Camera Cursor -->
-      <!-- <a-entity id="camera" camera look-controls stereocam="eye: left">
-        <a-cursor
-          id="cursor"
-          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-          animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
-          event-set__mouseenter="_event: mouseenter; color: springgreen"
-          event-set__mouseleave="_event: mouseleave; color: black"
-          raycaster="objects: .link"></a-cursor>
-      </a-entity> -->
-
-      <!-- 360-degree image for both eyes -->
-      <a-sky
-        id="image-360-left" radius="10" src="#pano-left"
-        stereo="eye:left"
-      ></a-sky>
-
-      <a-sky
-        id="image-360-right" radius="10" src="#pano-right"
-        stereo="eye:right"
-      ></a-sky>
-
-    </a-scene>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
