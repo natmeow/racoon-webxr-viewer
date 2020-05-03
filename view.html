@@ -70,15 +70,15 @@
           audioElem = appendMedia(assets, 'audio', name, 'audio', audio)
           audioElem.loop = true;
           audioElem.autoplay = true;
-          try {
-            audioElem.play();
-          } catch (e) {
-            console.log('error', e)
-            console.log('Using play-on-click')
-            document.onclick = () => {
-              audioElem.play();
-            }
-          }
+
+          audioElem.play()
+            .catch((e) => {
+              console.log('error', e)
+              console.log('Using play-on-click')
+              document.onclick = () => {
+                audioElem.play();
+              }
+            })
 
 
           canvasLeft.remove()
