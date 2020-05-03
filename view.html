@@ -37,8 +37,10 @@
           .then(list => images = list)
       }
 
+      const image = images[0]
+
       console.log('loading images from', images)
-      console.log('starting with', path)
+      console.log('starting with', image)
 
       window.onload = () => {
         // AFRAME.scenes[0].style.display = 'none'
@@ -87,7 +89,7 @@
 
         });
 
-        getImageURL(firebase.storage(), path).then(async (url) => {
+        getImageURL(firebase.storage(), image).then(async (url) => {
 
           const arrayBuffer = await fetch(url).then(res => res.blob())
 
