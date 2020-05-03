@@ -22,9 +22,15 @@
 
       const path = getQueryParam(window.location.search, 'path');
       const gallery = getQueryParam(window.location.search, 'gallery');
+      const code = getQueryParam(window.location.search, 'c');
       // const url = getQueryParam(window.location.search, 'url');
 
       let images = [path];
+
+      if (code) {
+        const path = `public/${code}.vr.jpg`
+        images = [path];
+      }
 
       if (gallery) {
         fetchGallery(gallery)
