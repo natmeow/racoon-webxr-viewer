@@ -64,17 +64,20 @@
   <body>
 
     <img width="200" src="https://storage.googleapis.com/cardboard-camera-converter/img/logo_google_cardboard_camera_24dp.svg">
-    <h1>Drop a Cardboard Camera image to upload</h1>
-    <p>You can upload many at once, but they will be shared only one by one.</p>
-    <p>Upload will begin automatically when selected</p>
-    <p>By uploading, you'll get a unique link, and the files will be visible to everyone by this link</p>
-    <b>Please only upload .vr.jpg files!</b>
-    <!-- <h2 id="openfile">or click here to open a file</h2> -->
+    <h2>Select Cardboard Camera images to upload</h2>
 
+    <ul>
+      <li>Upload will begin <b>automatically</b> when selected</li>
+      <li>You can upload multiple images, but they will get individual sharing links.</li>
+      <li>By uploading, you'll get a unique link, and the image will be visible to everyone using this link</li>
+    </ul>
+
+    <b>Please only upload .vr.jpg files!</b>
     <input type="file" class="file-upload" multiple="true">
 
     <p class="links">
-
+      <h4>Uploaded links</h4>
+      <hr width="50%" align="left"/>
     </p>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
